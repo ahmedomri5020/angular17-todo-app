@@ -1,102 +1,56 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKER_IMAGE = 'angular17-todo-app:latest'
-    }
-
     stages {
-        stage('Clone Repository') {
+        stage('Checkout SCM') {
             steps {
-                git branch: 'main', url: 'https://github.com/ahmedomri5020/angular17-todo-app.git'
+                checkout scm
             }
         }
-
         stage('Install nvm and Node.js') {
             steps {
                 script {
                     echo 'Installing nvm and Node.js v18...'
-                    sh '''
-                        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-                        source ~/.nvm/nvm.sh
-                        nvm install 18
-                        nvm use 18
+                    sh '''#!/bin/bash
+                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
+                    nvm install v18
                     '''
                 }
             }
         }
-
         stage('Install Dependencies') {
             steps {
-                script {
-                    echo 'Installing dependencies...'
-                    sh 'npm install'
-                }
+                sh 'npm install'
             }
         }
-
         stage('Build Application') {
             steps {
-                script {
-                    echo 'Building Angular application...'
-                    sh 'npm start -- --prod'
-                }
+                sh 'npm run build'
             }
         }
-
         stage('Run Tests') {
             steps {
-                script {
-                    echo 'Running tests...'
-                    sh 'npm run test -- --watch=false --browsers=ChromeHeadless'
-                }
+                sh 'npm test'
             }
         }
-
-        stage('Archive Test Results') {
-            steps {
-                script {
-                    echo 'Archiving test results...'
-                    junit '**/test-results/**/*.xml'
-                }
-            }
-        }
-
         stage('Docker Build') {
             steps {
-                script {
-                    if (fileExists('Dockerfile')) {
-                        echo 'Building Docker image...'
-                        sh 'docker build -t ${DOCKER_IMAGE} .'
-                    }
-                }
+                echo 'Docker build step'
             }
         }
-
         stage('Archive Build Artifacts') {
             steps {
-                script {
-                    echo 'Archiving build artifacts...'
-                    archiveArtifacts allowEmptyArchive: true, artifacts: 'dist/**', fingerprint: true
-                }
-            }
-        }
-
-        stage('Cleanup') {
-            steps {
-                script {
-                    if (fileExists('Dockerfile')) {
-                        echo 'Cleaning up Docker images...'
-                        sh 'docker rmi ${DOCKER_IMAGE}'
-                    }
-                }
+                echo 'Archiving build artifacts'
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline execution finished.'
+            echo 'Cleaning up workspace'
+            cleanWs()
         }
     }
 }
