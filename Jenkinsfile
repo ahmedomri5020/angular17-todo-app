@@ -10,7 +10,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Clone the Git repository
-                git 'https://github.com/ahmedomri5020/angular17-todo-app.git'
+                git branch: 'main', url:'https://github.com/ahmedomri5020/angular17-todo-app.git'
             }
         }
 
