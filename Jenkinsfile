@@ -10,7 +10,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Clone the Git repository
-                git branch: 'main', url:'https://github.com/ahmedomri5020/angular17-todo-app.git'
+                git branch: 'main', url: 'https://github.com/ahmedomri5020/angular17-todo-app.git'
             }
         }
 
@@ -27,9 +27,9 @@ pipeline {
         stage('Build Application') {
             steps {
                 script {
-                    // Build the Angular app
+                    // Use npm start to build the Angular app
                     echo 'Building Angular application...'
-                    sh 'ng build --prod'
+                    sh 'npm start -- --prod'  // Pass --prod if you need production build
                 }
             }
         }
@@ -39,7 +39,7 @@ pipeline {
                 script {
                     // Run unit tests with Angular CLI
                     echo 'Running tests...'
-                    sh 'ng test --watch=false --browsers=ChromeHeadless'
+                    sh 'npm run test -- --watch=false --browsers=ChromeHeadless'
                 }
             }
         }
