@@ -66,6 +66,16 @@ pipeline {
             }
         }
 
+        stage('Archive Build Artifacts') {
+            steps {
+                script {
+                    // Archive build artifacts (like the dist/ folder)
+                    echo 'Archiving build artifacts...'
+                    archiveArtifacts allowEmptyArchive: true, artifacts: 'dist/**', fingerprint: true
+                }
+            }
+        }
+
         stage('Cleanup') {
             steps {
                 script {
@@ -86,4 +96,3 @@ pipeline {
         }
     }
 }
-
