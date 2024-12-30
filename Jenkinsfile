@@ -37,14 +37,7 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    // Build Docker image
-                    sh 'docker build -t my-app:latest .'
-                }
-            }
-        }
+
 
         stage('Push Docker Image') {
             steps {
