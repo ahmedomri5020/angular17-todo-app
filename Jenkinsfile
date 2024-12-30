@@ -16,9 +16,11 @@ pipeline {
                 script {
                     echo 'Installing nvm and Node.js v18...'
 
-                    // Install nvm and use Node.js v18
+                    // Install nvm and use Node.js v18 if it's not already installed
                     sh '''#!/bin/bash
-                    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+                    if [ ! -d "$NVM_DIR" ]; then
+                        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+                    fi
                     export NVM_DIR="$HOME/.nvm"
                     [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
                     nvm install 18
@@ -52,7 +54,18 @@ pipeline {
         }
         stage('Docker Build') {
             steps {
-                echo 'Docker build step'
+                script {
+                    echo 'Building Docker image'
+                    sh 'docker build -t my-app:latest .'
+                }
+            }
+        }
+        stage('Docker Push') {
+            steps {
+                script {
+                    echo 'Pushing Docker image to registry'
+                    sh 'docker push my-app:latest'
+                }
             }
         }
         stage('Archive Build Artifacts') {
